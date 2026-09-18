@@ -1,0 +1,4 @@
+[lint]
+# Do not report or auto-delete unused imports while actively developing
+ignore = ["F401"]
+unfixable = ["F401"]
