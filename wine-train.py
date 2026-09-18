@@ -4,6 +4,9 @@ import os
 # Set backend before importing Keras
 os.environ["KERAS_BACKEND"] = "torch"
 
+import tempfile
+import uuid
+
 import keras
 import numpy as np
 import pandas as pd
@@ -40,6 +43,27 @@ def convert_label(y):
         else:
             y[i] = 3
     return y
+
+
+def save_evaluation(metrics, filepath="models/wine-evaluation.json"):
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    history = []
+    if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
+        try:
+            with open(filepath, "r") as f:
+                data = json.load(f)
+                history = data if isinstance(data, list) else [data]
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            history = []
+
+    history.append(metrics)
+
+    dir_name = os.path.dirname(filepath)
+    with tempfile.NamedTemporaryFile("w", dir=dir_name, delete=False) as tf:
+        json.dump(history, tf, indent=2)
+        temp_name = tf.name
+
+    os.replace(temp_name, filepath)
 
 
 raw_df = pd.read_csv("data/wine/raw/winedata.csv")
@@ -84,7 +108,7 @@ model.fit(X_tr_scaled, y_tr, epochs=EPOCHS, batch_size=BATCH_SIZE, verbose=2)
 # Save model and config
 os.makedirs("models", exist_ok=True)
 model.save("models/wine_model.keras")
-with open("models/model_config.json", "w") as f:
+with open("models/wine_model_config.json", "w") as f:
     json.dump(model.get_config(), f, indent=2)
 
 y_hat = model.predict(X_test_scaled)
@@ -95,6 +119,7 @@ y_hat = convert_label(y_hat)
 y_test = convert_label(y_test)
 
 eval_metrics = {
+    "uuid": str(uuid.uuid4()),
     "accuracy": float(accuracy_score(y_test, y_hat)),
     "precision": float(precision_score(y_test, y_hat, average="macro")),
     "recall": float(recall_score(y_test, y_hat, average="macro")),
@@ -102,8 +127,4 @@ eval_metrics = {
 }
 
 # Save evaluation output
-with open("models/evaluation.json", "w") as f:
-    json.dump(eval_metrics, f, indent=2)
-
-for metric, score in eval_metrics.items():
-    print(f"{metric.capitalize()}: {score:.4f}")
+save_evaluation(eval_metrics, "models/wine-evaluation.json")
