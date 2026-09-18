@@ -128,3 +128,13 @@ eval_metrics = {
 
 # Save evaluation output
 save_evaluation(eval_metrics, "models/wine-evaluation.json")
+
+"""
+average:
+	Metric    | Average (Mean)  | Std Dev |   Min   |  Max
+  -----------|-----------------|---------|---------|--------
+   Accuracy  | 0.9630 (96.30%) | ±0.0160 | 0.9444  | 0.9722
+   Precision | 0.9607 (96.07%) | ±0.0237 | 0.9333  | 0.9744
+   Recall    | 0.9722 (97.22%) | ±0.0120 | 0.9583  | 0.9792
+   F1 Score  | 0.9642 (96.42%) | ±0.0203 | 0.9407  | 0.9759
+"""
