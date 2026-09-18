@@ -1,3 +1,3 @@
-Deep Learning Neural Networks for CLassification Problems
+Deep Learning Neural Networks for Classification Problems
 
 
